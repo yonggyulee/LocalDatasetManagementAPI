@@ -265,31 +265,6 @@ namespace LocalDatasetManagementAPI.Controllers
         {
             using (var ldmdb = new LDMContext(dataset_id))
             {
-                //Console.WriteLine("UPLOADIMAGE");
-                //Console.WriteLine($"{image.ImageID}");
-                //Console.WriteLine($"{image.ImageNO}");
-                //Console.WriteLine($"{image.ImageCode}");
-                //Console.WriteLine($"{image.ImageScheme}");
-                //Console.WriteLine($"{image.OriginalFilename}");
-                //Console.WriteLine($"ImageFile :: ");
-                //if(image.ImageFile == null)
-                //{
-                //    Console.WriteLine("ImageFile is null");
-                //}
-
-                //string test_path = "D:\\LocalDatasetManagement\\savedata\\images";
-                //var verified_path = pathToVerifiedPath(Path.Combine(test_path, image.ImageID));
-                //saveFile(image.ImageFile, verified_path);
-
-                //return new
-                //{
-                //    image.ImageID,
-                //    image.SampleID,
-                //    image.ImageNO,
-                //    image.ImageCode,
-                //    image.OriginalFilename,
-                //    image.ImageScheme
-                //};
                 // 입력한 이미지 정보의 SampleID와 일치하는 Sample DbSet을 DbContext로 부터 조회.
                 var sample = ldmdb.Sample.Include(b => b.Images).Where(s => s.SampleID == image.SampleID).First();
                 Console.WriteLine($"POSTIMAGE FIND : {sample.SampleID}");
@@ -310,7 +285,7 @@ namespace LocalDatasetManagementAPI.Controllers
                     string current_path = Environment.CurrentDirectory + $"\\database\\{dataset_id}\\images";
 
                     var verified_path = pathToVerifiedPath(Path.Combine(current_path, image.ImageID));
-
+                    
                     try
                     {
                         // 파일 저장
@@ -379,7 +354,7 @@ namespace LocalDatasetManagementAPI.Controllers
                 string current_path = Environment.CurrentDirectory + $"\\database\\{dataset_id}\\images";
 
                 var verified_path = pathToVerifiedPath(Path.Combine(current_path, verified_id));
-
+                
                 try
                 {
                     // 파일 저장
@@ -425,7 +400,7 @@ namespace LocalDatasetManagementAPI.Controllers
             return ldmdb.Image.Any(e => e.ImageID == id);
         }
 
-        private async void saveFile(IFormFile file, string path)
+        private void saveFile(IFormFile imgFile, string path)
         {
             // 경로 검증
             Console.WriteLine($"Path : {path}");
@@ -438,11 +413,14 @@ namespace LocalDatasetManagementAPI.Controllers
                 di.Create();
             }
 
-            if (file.Length > 0)
+            if (imgFile.Length > 0)
             {
-                using (var fileStream = new FileStream(path, FileMode.Create))
+                using (var imgStream = imgFile.OpenReadStream())
                 {
-                    await file.CopyToAsync(fileStream);
+                    using (var fileStream = new FileStream(path, FileMode.Create))
+                    {
+                        imgStream.CopyTo(fileStream);
+                    }
                 }
             }
         }
