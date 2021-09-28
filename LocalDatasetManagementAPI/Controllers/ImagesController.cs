@@ -87,7 +87,7 @@ namespace LocalDatasetManagementAPI.Controllers
 
         // GET: api/Images/dataset_id/5
         // 이미지 아이디로 해당 이미지 정보 조회
-        [HttpGet("{dataset_id}/image={id}")]
+        [HttpGet("{dataset_id}/{id}")]
         public async Task<Object> GetImage(string dataset_id, string id)
         {
             using (var ldmdb = new LDMContext(dataset_id))
@@ -371,7 +371,7 @@ namespace LocalDatasetManagementAPI.Controllers
 
         // GET:
         // 이미지 파일 다운로드
-        [HttpGet("{dataset_id}/file/image={id}")]
+        [HttpGet("{dataset_id}/file/{id}")]
         public async Task<IActionResult> DownloadImage(string dataset_id, string id)
         {
             using (var ldmdb = new LDMContext(dataset_id))
