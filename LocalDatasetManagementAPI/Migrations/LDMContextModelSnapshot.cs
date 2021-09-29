@@ -6,7 +6,7 @@ using LocalDatasetManagementAPI.Models;
 
 namespace LocalDatasetManagementAPI.Migrations
 {
-    [DbContext(typeof(LDMContext))]
+    [DbContext(typeof(DMContext))]
     partial class LDMContextModelSnapshot : ModelSnapshot
     {
         protected override void BuildModel(ModelBuilder modelBuilder)

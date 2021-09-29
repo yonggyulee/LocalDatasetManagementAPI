@@ -1,15 +1,13 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+﻿using LocalDatasetManagementAPI.Controllers.Utils;
 using LocalDatasetManagementAPI.Models;
-using System.Collections.Generic;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
+using System;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using System;
-using System.Text.Json;
-using Microsoft.AspNetCore.Http;
-using System.IO;
-using Newtonsoft.Json;
-using LocalDatasetManagementAPI.Controllers.Utils;
 
 namespace LocalDatasetManagementAPI.Controllers
 {
@@ -29,7 +27,7 @@ namespace LocalDatasetManagementAPI.Controllers
         [HttpGet("{dataset_id}")]
         public async Task<ActionResult<Object>> GetImage(string dataset_id)
         {
-            using (var ldmdb = new LDMContext(dataset_id))
+            using (var ldmdb = new DMContext(dataset_id))
             {                
                 return await ldmdb
                             .Image
@@ -59,7 +57,7 @@ namespace LocalDatasetManagementAPI.Controllers
         [HttpGet("{dataset_id}/sample={sample_id}")]
         public async Task<ActionResult<Object>> GetImage(string dataset_id, int sample_id)
         {
-            using (var ldmdb = new LDMContext(dataset_id))
+            using (var ldmdb = new DMContext(dataset_id))
             {
                 return await ldmdb
                             .Image
@@ -90,7 +88,7 @@ namespace LocalDatasetManagementAPI.Controllers
         [HttpGet("{dataset_id}/{id}")]
         public async Task<Object> GetImage(string dataset_id, string id)
         {
-            using (var ldmdb = new LDMContext(dataset_id))
+            using (var ldmdb = new DMContext(dataset_id))
             {
                 var image = await ldmdb
                                 .Image
@@ -129,7 +127,7 @@ namespace LocalDatasetManagementAPI.Controllers
         [HttpPut("{dataset_id}/{id}")]
         public async Task<IActionResult> PutImage(string dataset_id, string id, Image image)
         {
-            using (var ldmdb = new LDMContext(dataset_id))
+            using (var ldmdb = new DMContext(dataset_id))
             {
                 if (id != image.ImageID)
                 {
@@ -164,7 +162,7 @@ namespace LocalDatasetManagementAPI.Controllers
         [HttpPost("{dataset_id}")]
         public async Task<ActionResult<Image>> PostImage(string dataset_id, Image image)
         {
-            using (var ldmdb = new LDMContext(dataset_id))
+            using (var ldmdb = new DMContext(dataset_id))
             {
                 // 입력한 이미지 정보의 SampleID와 일치하는 Sample DbSet을 DbContext로 부터 조회.
                 var sample = ldmdb.Sample.Include(b => b.Images).Where(s => s.SampleID == image.SampleID).First();
@@ -224,7 +222,7 @@ namespace LocalDatasetManagementAPI.Controllers
         [HttpDelete("{dataset_id}/{id}")]
         public async Task<IActionResult> DeleteImage(string dataset_id, string id)
         {
-            using (var ldmdb = new LDMContext(dataset_id))
+            using (var ldmdb = new DMContext(dataset_id))
             {
                 // id로 이미지 조회
                 var image = await ldmdb.Image.FindAsync(id);
@@ -251,9 +249,6 @@ namespace LocalDatasetManagementAPI.Controllers
 
                 await ldmdb.SaveChangesAsync();
 
-
-
-
                 return NoContent();
             }
         }
@@ -263,7 +258,7 @@ namespace LocalDatasetManagementAPI.Controllers
         [HttpPost("{dataset_id}/upload")]
         public async Task<Object> UploadImage(string dataset_id, [FromForm]Image image)
         {
-            using (var ldmdb = new LDMContext(dataset_id))
+            using (var ldmdb = new DMContext(dataset_id))
             {
                 // 입력한 이미지 정보의 SampleID와 일치하는 Sample DbSet을 DbContext로 부터 조회.
                 var sample = ldmdb.Sample.Include(b => b.Images).Where(s => s.SampleID == image.SampleID).First();
@@ -374,7 +369,7 @@ namespace LocalDatasetManagementAPI.Controllers
         [HttpGet("{dataset_id}/file/{id}")]
         public async Task<IActionResult> DownloadImage(string dataset_id, string id)
         {
-            using (var ldmdb = new LDMContext(dataset_id))
+            using (var ldmdb = new DMContext(dataset_id))
             {
                 Console.WriteLine($"DownloadImage : {dataset_id} {id}");
                 // 이미지 조회
@@ -395,7 +390,7 @@ namespace LocalDatasetManagementAPI.Controllers
             }
         }
         
-        private bool ImageExists(LDMContext ldmdb, string id)
+        private bool ImageExists(DMContext ldmdb, string id)
         {
             return ldmdb.Image.Any(e => e.ImageID == id);
         }

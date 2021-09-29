@@ -7,7 +7,7 @@ using LocalDatasetManagementAPI.Models;
 
 namespace LocalDatasetManagementAPI.Migrations
 {
-    [DbContext(typeof(LDMContext))]
+    [DbContext(typeof(DMContext))]
     [Migration("20210909051521_Database_v6")]
     partial class Database_v6
     {

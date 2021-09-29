@@ -1,15 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
+﻿using LocalDatasetManagementAPI.Models;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using LocalDatasetManagementAPI.Models;
-using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Migrations;
-using Microsoft.Extensions.DependencyInjection;
+using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Threading.Tasks;
 
 namespace LocalDatasetManagementAPI.Controllers
 {
@@ -46,29 +40,40 @@ namespace LocalDatasetManagementAPI.Controllers
             CreateDirectory($"{id}\\images");
 
             // db 생성
-            using (var ldmdb = new LDMContext(id))
+            using (var ldmdb = new DMContext(id))
             {
-                //var pendingMigrations = await ldmdb.Database.GetPendingMigrationsAsync();
-
-                //Console.WriteLine($"pendingMigrations :::: {pendingMigrations.Any()}");
-                //if (pendingMigrations.Any())
-                //{
-                //    Console.WriteLine($"You have {pendingMigrations.Count()} pending migrations to apply.");
-                //    Console.WriteLine("Applying pending migrations now");
-                //    await ldmdb.Database.MigrateAsync();
-                //}
-                
-                // 기존에 Migration한 데이터베이스 정보를 db 파일에 적용.
-                // id 위치에 db 파일이 없을 시 migrate하여 db 파일 생성. 
-                await ldmdb.GetInfrastructure().GetService<IMigrator>().MigrateAsync("Database_v6");
-                // 가장 최근에 적용된 Migration을 반환.
-                var lastAppliedMigration = (await ldmdb.Database.GetAppliedMigrationsAsync()).Last();
-
-                Console.WriteLine($"You're on schema version: {lastAppliedMigration}");
+                // 데이터베이스 마이그레이션
+                await ldmdb.MigrateDB();
             }
 
             return id;
         }
+
+        [HttpPost]
+        public async Task<ActionResult<string>> Create(string id)
+        {
+            var dl = GetDatasetList();
+            if (dl.Contains(id))
+            {
+                return NoContent();
+            }
+
+            // 데이터셋 디렉토리 생성
+            CreateDirectory(id);
+
+            // 이미지 디렉토리 생성
+            CreateDirectory($"{id}\\images");
+
+            // db 생성
+            using (var ldmdb = new DMContext(id))
+            {
+                // 데이터베이스 마이그레이션
+                await ldmdb.MigrateDB();
+            }
+
+            return id;
+        }
+
 
         private List<string> GetDatasetList()
         {

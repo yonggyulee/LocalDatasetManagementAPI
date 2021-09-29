@@ -1,15 +1,11 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+﻿using LocalDatasetManagementAPI.Controllers.Utils;
 using LocalDatasetManagementAPI.Models;
-using System.Collections.Generic;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
+using System;
 using System.Linq;
 using System.Threading.Tasks;
-using System;
-using System.IO;
-using System.Text;
-using System.Text.Json;
-using Newtonsoft.Json;
-using LocalDatasetManagementAPI.Controllers.Utils;
 
 namespace LocalDatasetManagementAPI.Controllers
 {
@@ -28,7 +24,7 @@ namespace LocalDatasetManagementAPI.Controllers
         [HttpGet("{dataset_id}")]
         public async Task<ActionResult<Object>> GetSample(string dataset_id)
         {
-            using (var ldmdb = new LDMContext(dataset_id))
+            using (var ldmdb = new DMContext(dataset_id))
             {
                 return await ldmdb
                             .Sample
@@ -58,7 +54,7 @@ namespace LocalDatasetManagementAPI.Controllers
         [HttpGet("{dataset_id}/{id}")]
         public async Task<ActionResult<Sample>> GetSample(string dataset_id, int id)
         {
-            using (var ldmdb = new LDMContext(dataset_id))
+            using (var ldmdb = new DMContext(dataset_id))
             {
                 var sample = await ldmdb.Sample.FindAsync(id);
 
@@ -76,7 +72,7 @@ namespace LocalDatasetManagementAPI.Controllers
         [HttpPut("{dataset_id}/{id}")]
         public async Task<IActionResult> PutSample(string dataset_id, int id, Sample sample)
         {
-            using (var ldmdb = new LDMContext(dataset_id))
+            using (var ldmdb = new DMContext(dataset_id))
             {
                 if (id != sample.SampleID)
                 {
@@ -110,7 +106,7 @@ namespace LocalDatasetManagementAPI.Controllers
         [HttpPost("{dataset_id}")]
         public async Task<ActionResult<Sample>> PostSample(string dataset_id, Sample sample)
         {
-            using (var ldmdb = new LDMContext(dataset_id))
+            using (var ldmdb = new DMContext(dataset_id))
             {
                 sample.DatasetID = dataset_id;
                 string body = JsonConvert.SerializeObject(
@@ -151,7 +147,7 @@ namespace LocalDatasetManagementAPI.Controllers
         [HttpDelete("{dataset_id}/{id}")]
         public async Task<IActionResult> DeleteSample(string dataset_id, int id)
         {
-            using (var ldmdb = new LDMContext(dataset_id))
+            using (var ldmdb = new DMContext(dataset_id))
             {
                 var sample = await ldmdb.Sample.FindAsync(id);
                 if (sample == null)
@@ -166,7 +162,7 @@ namespace LocalDatasetManagementAPI.Controllers
             }
         }
 
-        private bool SampleExists(LDMContext ldmdb, int id)
+        private bool SampleExists(DMContext ldmdb, int id)
         {
             return ldmdb.Sample.Any(e => e.SampleID == id);
         }
